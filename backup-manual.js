@@ -1,0 +1,16 @@
+(()=>{'use strict';
+const PREFIX='gestion_facturacion_360_', LEGACY='gestion_facturacion_360_v1';
+const status=document.getElementById('full-status');
+const eligible=k=>k.startsWith(PREFIX);
+function snapshot(){const out={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(eligible(k))out[k]=localStorage.getItem(k)}return out}
+function saveFile(obj,filename){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}
+function exportAll(prefix='facturacion360-copia-completa'){const data=snapshot();const payload={schema:'gf360-manual-2.2',createdAt:new Date().toISOString(),data};const date=new Date().toISOString().replace(/[:.]/g,'-');saveFile(payload,`${prefix}-${date}.json`);return Object.keys(data).length}
+function validate(o){if(!o||!['gf360-manual-2.2','gf360-pwa-2.1','gf360-pwa-2.0'].includes(o.schema)||!o.data||typeof o.data!=='object'||Array.isArray(o.data))throw Error('No es una copia completa compatible.');const d=o.data;for(const [k,v] of Object.entries(d)){if(!eligible(k)||typeof v!=='string')throw Error('La copia contiene datos no válidos.');if(k===PREFIX+'profiles_v12'||k.startsWith(PREFIX+'account_')||k===LEGACY)JSON.parse(v)}const reg=JSON.parse(d[PREFIX+'profiles_v12']||'null');if(!reg||!Array.isArray(reg.accounts)||!reg.accounts.length||!reg.accounts.every(a=>typeof a.id==='string'&&typeof a.name==='string'&&typeof d[PREFIX+'account_'+a.id]==='string'))throw Error('Faltan cuentas o registros en la copia.');return d}
+document.getElementById('full-export').addEventListener('click',()=>{try{const n=exportAll();status.textContent=`Copia descargada (${n} elementos). Guárdala ahora en OneDrive y comprueba que aparece allí.`}catch(e){status.textContent='No se pudo descargar: '+e.message}});
+document.getElementById('full-import').addEventListener('change',async e=>{const input=e.target,file=input.files[0];if(!file)return;try{if(file.size>150*1024*1024)throw Error('Archivo demasiado grande para importar de una vez.');const d=validate(JSON.parse(await file.text()));const n=Object.keys(d).length;const existing=snapshot();if(!confirm(`Se van a REEMPLAZAR todas las cuentas y datos de este dispositivo por ${n} elementos de la copia. ¿Continuar?`))return;
+exportAll('facturacion360-respaldo-ANTES-de-recuperar');
+if(!confirm('Se ha solicitado la descarga de un respaldo de este dispositivo. COMPRUEBA que se ha guardado correctamente antes de continuar. ¿Confirmas que tienes el respaldo?'))return;
+try{for(const k of Object.keys(existing))localStorage.removeItem(k);for(const [k,v] of Object.entries(d))localStorage.setItem(k,v)}catch(err){try{for(const k of Object.keys(snapshot()))localStorage.removeItem(k);for(const [k,v] of Object.entries(existing))localStorage.setItem(k,v)}catch{}throw Error('No hay espacio suficiente o falló el guardado. Intenta recuperar tu respaldo anterior. '+err.message)}
+status.textContent='Copia recuperada. Recargando...';location.reload();}catch(err){status.textContent='No se ha recuperado: '+err.message}finally{input.value=''}});
+if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
