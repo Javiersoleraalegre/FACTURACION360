@@ -1,0 +1,11 @@
+GESTIÓN DE FACTURACIÓN 360 — PWA 2.0 (PROTOTIPO)
+
+1. Guarda una copia de seguridad de v1.5.
+2. Publica TODOS los archivos de esta carpeta en un alojamiento HTTPS gratuito. No basta con abrir index.html desde el disco ni ponerlo en OneDrive.
+3. Registra una aplicación en Microsoft Entra con cuentas personales Microsoft permitidas y redirect URI tipo SPA igual a la URL pública de index.html.
+4. Concede permiso delegado Files.ReadWrite.AppFolder si está disponible para tu configuración. La disponibilidad y el consentimiento dependen de Microsoft.
+5. Copia el Application (client) ID en la pantalla y conecta Microsoft.
+6. Descarga primero la copia remota antes de subir desde un dispositivo nuevo.
+7. En Safari iPhone/iPad: Compartir > Añadir a pantalla de inicio. En Chrome/Edge: Instalar aplicación.
+
+LIMITACIONES: sincronización MANUAL, no colaboración simultánea, subida simple limitada a 3,5 MB, datos locales sin cifrado, no verificada la emisión fiscal, no se ha probado el login real. Los archivos de v1.5 guardados en otro origen web no se migran solos: exporta e importa su copia desde el menú de la aplicación. No publiques información fiscal real hasta validar la seguridad y la fiabilidad.

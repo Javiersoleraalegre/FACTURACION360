@@ -1,0 +1,1 @@
+{"name": "Gestión de Facturación 360", "short_name": "Facturación 360", "start_url": "./index.html", "scope": "./", "display": "standalone", "background_color": "#f3f6fa", "theme_color": "#122d4d", "icons": [{"src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}]}
